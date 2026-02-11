@@ -21,11 +21,23 @@ description: 嵌入式项目技术文档管理Skill - 创建、更新、浏览�
 ```
 .zed/.projwiki/
 ├── index.md              # 首页/项目总览
-├── modules/              # 模块文档（按四层架构分类）
-│   ├── app_xxx.md        # 应用层模块文档
-│   ├── mdw_xxx.md        # 中间层模块文档
-│   ├── calc_xxx.md       # 计算层模块文档
-│   └── bsp_xxx.md        # 硬件层模块文档
+├── modules/              # 模块文档（按功能域和架构层次分类）
+│   ├── application/      # 应用层
+│   │   ├── app_xxx.md
+│   │   └── ...
+│   ├── middleware/       # 中间层
+│   │   ├── mdw_xxx.md
+│   │   └── ...
+│   ├── calculation/      # 计算层
+│   │   ├── calc_xxx.md
+│   │   └── ...
+│   ├── bsp/              # 硬件抽象层
+│   │   ├── bsp_xxx.md
+│   │   └── ...
+│   ├── communication/    # 通信模块（可选分类）
+│   ├── control/          # 控制模块（可选分类）
+│   ├── protection/       # 保护模块（可选分类）
+│   └── diagnostic/       # 诊断模块（可选分类）
 ├── api/                  # API接口文档
 │   └── xxx_api.md        # 具体API文档
 ├── design/               # 设计文档
@@ -63,12 +75,25 @@ description: 嵌入式项目技术文档管理Skill - 创建、更新、浏览�
    - 运行命令：`python .claude/skills/projwiki_manager/scripts/scaffold_docs.py --ai-fill`
    - 脚本会使用增强版模板（`module_doc_ai.md`），其中包含详细的AI填空标记
 
-2. **自动生成AI任务**
+2. **执行文件分模块操作**
+   - 初始化时自动将所有生成的文档按功能模块进行文件夹分类
+   - 分类依据：
+     * 按架构层次（应用层/中间层/计算层/硬件层）
+     * 按功能域（通信/控制/保护/诊断等）
+     * 按硬件接口（SPI/I2C/ADC/PWM等）
+   - 在 `modules/` 目录下创建对应的子文件夹结构
+
+3. **自动生成AI任务**
    - 扫描完成后，脚本会自动提取所有AI填空标记
    - 生成任务JSON文件：`.zed/.projwiki/.ai_tasks/pending_tasks_YYYYMMDD_HHMMSS.json`
+   - **第一项任务必定为"重新分模块"任务**：
+     * 任务标识：`reorganize_modules`
+     * 优先级：`critical`
+     * 要求：审查当前文件分类是否合理，根据项目实际架构重新组织模块文档结构
+     * 输出：更新后的文件夹结构和文档移动清单
    - 显示任务摘要：按优先级和类型分类的任务列表
 
-3. **处理AI填空任务**
+4. **处理AI填空任务**
    - 运行AI补充工具（交互模式）：
      ```bash
      python .claude/skills/projwiki_manager/scripts/ai_complete.py .zed/.projwiki/.ai_tasks/pending_tasks_*.json
@@ -78,7 +103,7 @@ description: 嵌入式项目技术文档管理Skill - 创建、更新、浏览�
      python .claude/skills/projwiki_manager/scripts/ai_complete.py --generate-prompts .zed/.projwiki/.ai_tasks/pending_tasks_*.json
      ```
 
-4. **AI补充工作流程**
+5. **AI补充工作流程**
    - 查看生成的提示文件（`.ai_tasks/ai_prompts_*.md`）
    - 每个任务包含：
      * 详细的补充要求和格式说明
@@ -86,7 +111,7 @@ description: 嵌入式项目技术文档管理Skill - 创建、更新、浏览�
      * 当前占位内容
    - AI助手根据提示文件逐个完成任务，直接编辑对应的文档文件
 
-5. **验证与刷新**
+6. **验证与刷新**
    - 完成补充后，运行构建脚本：`python .claude/skills/projwiki_manager/scripts/build_wiki.py`
    - 在HTML查看器中验证文档质量
 
@@ -253,6 +278,7 @@ Format: 格式提示（可选，如表格格式、代码块语言等）
 ```
 
 **支持的任务类型**：
+- `reorganize_modules` - **重新分模块（初始化时第一项任务）**
 - `description` - 文字描述
 - `function_list` - 功能列表
 - `function_table` - 函数表格
