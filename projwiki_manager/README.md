@@ -10,6 +10,7 @@ ProjWiki Manager 是一个专为嵌入式微逆变器项目（GD32G553 YTC2400W�
 - 🌐 一键生成自包含 HTML 文档站点（零依赖，双击即可打开）
 - 🔍 内置全文搜索功能（支持标题、内容、标签搜索）
 - 📂 分类导航（按四层架构：应用层/中间层/计算层/硬件层）
+- 🤖 AI智能填空（自动生成待补充任务，基于源码分析生成文档内容）
 - 🌙 亮色/暗色主题切换
 - 🖨️ 打印友好的页面布局
 - ⌨️ 键盘快捷键支持（`Ctrl+K` 或 `/` 聚焦搜索）
@@ -69,11 +70,16 @@ python .claude/skills/projwiki_manager/scripts/build_wiki.py
 ├── SKILL.md                    # 主技能定义文件
 ├── README.md                   # 本使用说明
 ├── EXAMPLES.md                 # 详细使用示例
+├── AI_FILL_GUIDE.md            # AI填空功能使用指南（新增）
 ├── scripts/
 │   ├── build_wiki.py           # HTML 站点构建脚本
+│   ├── scaffold_docs.py        # 文档脚手架工具（支持AI填空）
+│   ├── ai_complete.py          # AI补充脚本（新增）
+│   ├── ai_task_utils.py        # AI任务工具库（新增）
 │   └── viewer_template.html    # HTML 查看器模板
 └── templates/
-    ├── module_doc.md           # 模块文档模板
+    ├── module_doc.md           # 模块文档模板（标准版）
+    ├── module_doc_ai.md        # 模块文档模板（AI填空版，新增）
     ├── api_doc.md              # API 接口文档模板
     ├── design_doc.md           # 设计文档模板
     ├── hw_interface_doc.md     # 硬件接口文档模板
@@ -98,6 +104,9 @@ python .claude/skills/projwiki_manager/scripts/build_wiki.py
 │   └── xxx_hw.md
 ├── changelog/                  # 变更日志
 │   └── YYYY-MM.md
+├── .ai_tasks/                  # AI填空任务目录（新增）
+│   ├── pending_tasks_*.json    # 待处理任务文件
+│   └── ai_prompts_*.md         # AI补充提示文件
 └── _site/
     └── index.html              # 生成的 HTML 查看器（自动生成）
 ```
@@ -129,7 +138,33 @@ status: draft | review | published
 ---
 ```
 
-### 2. 状态说明
+### 2. AI填空功能（可选）
+
+**快速开始**：
+
+```bash
+# 使用AI填空模板初始化文档
+python .claude/skills/projwiki_manager/scripts/scaffold_docs.py --ai-fill
+
+# 生成AI提示文件
+python .claude/skills/projwiki_manager/scripts/ai_complete.py \
+    --generate-prompts \
+    .zed/.projwiki/.ai_tasks/pending_tasks_*.json
+
+# 将生成的提示文件交给AI助手处理
+```
+
+**功能说明**：
+
+AI填空功能使用增强版模板（`module_doc_ai.md`），在文档中标记需要AI补充的区域，并自动：
+- ✅ 提取源码信息（函数、结构体、枚举等）
+- ✅ 生成详细的任务清单（含补充要求、格式说明）
+- ✅ 创建AI提示文件，供AI助手参考
+- ✅ 支持按优先级组织任务（高/中/低）
+
+详细使用方法请参考 [AI_FILL_GUIDE.md](AI_FILL_GUIDE.md)
+
+### 3. 状态说明
 
 | 状态 | 含义 | 显示颜色 |
 |------|------|---------|
@@ -137,7 +172,7 @@ status: draft | review | published
 | `review` | 待评审 | 蓝色 |
 | `published` | 已发布 | 绿色 |
 
-### 3. 安全关键内容
+### 4. 安全关键内容
 
 涉及功率级、保护逻辑或中断时序的内容，必须使用告警块：
 
@@ -145,7 +180,7 @@ status: draft | review | published
 > **WARNING**: 死区时间直接关系GaN器件安全，最小值200ns，严禁低于此值！
 ```
 
-### 4. 文件命名
+### 5. 文件命名
 
 - 只使用小写字母、数字和下划线
 - 格式：`<模块名>.md`，如 `bsp_timer.md`、`mdw_pwm_api.md`
@@ -309,6 +344,9 @@ HTML 查看器内置轻量级 Markdown 渲染器，支持以下语法：
 4. 构建脚本只需要 Python 3.6+ 标准库，无额外依赖
 5. 生成的 HTML 是完全自包含的，可以复制到任何地方查看
 6. `.zed/.projwiki/_site/` 目录建议加入 `.gitignore`
+7. **AI填空功能完全可选**，可以继续使用标准模板
+8. AI生成的内容需要人工审核，确保准确性和完整性
+9. AI任务文件保存在 `.ai_tasks/` 目录，不影响文档结构
 
 ## 故障排除
 
@@ -324,4 +362,5 @@ HTML 查看器内置轻量级 Markdown 渲染器，支持以下语法：
 
 | 版本 | 日期 | 说明 |
 |------|------|------|
+| v1.1 | 2025-01-10 | 新增AI智能填空功能 |
 | v1.0 | 2025-07-11 | 初始版本 |

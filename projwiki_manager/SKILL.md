@@ -1,6 +1,6 @@
 ---
 name: projwiki_manager
-description: 嵌入式项目技术文档管理Skill - 创建、更新、浏览项目技术文档。强制使用中文编写，支持自动刷新HTML查看器，以及首次运行时自动全量扫描项目模块。专为嵌入式微逆变器项目设计。
+description: 嵌入式项目技术文档管理Skill - 创建、更新、浏览项目技术文档。强制使用中文编写，支持自动刷新HTML查看器，以及首次运行时自动全量扫描项目模块。新增AI智能填空功能，自动生成待补充任务。专为嵌入式微逆变器项目设计。
 ---
 
 # ProjWiki Manager - 嵌入式项目技术文档管理
@@ -14,6 +14,7 @@ description: 嵌入式项目技术文档管理Skill - 创建、更新、浏览�
 2. **自动刷新**：每次创建或更新文档后，必须自动运行构建脚本刷新HTML查看器。
 3. **全量扫描**：首次初始化时，自动扫描项目源码并为所有模块生成文档草稿。
 4. **文档格式**：所有技术文档必须保存为标准的 Markdown 格式（.md）。
+5. **AI智能填空**：支持使用AI填空模板生成文档，自动标记待补充区域并生成任务清单。
 
 ## 文档目录结构
 
@@ -33,6 +34,9 @@ description: 嵌入式项目技术文档管理Skill - 创建、更新、浏览�
 │   └── xxx_hw.md         # 硬件接口说明
 ├── changelog/            # 变更日志
 │   └── YYYY-MM.md        # 按月变更记录
+├── .ai_tasks/            # AI填空任务目录（新增）
+│   ├── pending_tasks_YYYYMMDD_HHMMSS.json  # 待处理任务
+│   └── ai_prompts_YYYYMMDD_HHMMSS.md       # AI补充提示文件
 └── _site/
     └── index.html        # 生成的HTML查看器（自动生成，勿手动编辑）
 ```
@@ -41,7 +45,9 @@ description: 嵌入式项目技术文档管理Skill - 创建、更新、浏览�
 
 ### 流程零：初始化与全量扫描
 
-当用户首次使用或明确要求“初始化”、“全量更新”时：
+当用户首次使用或明确要求"初始化"、"全量更新"时：
+
+#### 标准模式（不含AI填空）
 
 1. **自动扫描与生成**
    - 运行脚手架脚本：`python .claude/skills/projwiki_manager/scripts/scaffold_docs.py`
@@ -49,7 +55,40 @@ description: 嵌入式项目技术文档管理Skill - 创建、更新、浏览�
 
 2. **自动刷新HTML站点**
    - 执行构建脚本：`python .claude/skills/projwiki_manager/scripts/build_wiki.py`
-   - 提示用户：“全量扫描完成，文档已生成。请打开 HTML 查看器。”
+   - 提示用户："全量扫描完成，文档已生成。请打开 HTML 查看器。"
+
+#### AI填空模式（推荐）
+
+1. **使用AI填空模板扫描**
+   - 运行命令：`python .claude/skills/projwiki_manager/scripts/scaffold_docs.py --ai-fill`
+   - 脚本会使用增强版模板（`module_doc_ai.md`），其中包含详细的AI填空标记
+
+2. **自动生成AI任务**
+   - 扫描完成后，脚本会自动提取所有AI填空标记
+   - 生成任务JSON文件：`.zed/.projwiki/.ai_tasks/pending_tasks_YYYYMMDD_HHMMSS.json`
+   - 显示任务摘要：按优先级和类型分类的任务列表
+
+3. **处理AI填空任务**
+   - 运行AI补充工具（交互模式）：
+     ```bash
+     python .claude/skills/projwiki_manager/scripts/ai_complete.py .zed/.projwiki/.ai_tasks/pending_tasks_*.json
+     ```
+   - 或生成提示文件供AI助手参考：
+     ```bash
+     python .claude/skills/projwiki_manager/scripts/ai_complete.py --generate-prompts .zed/.projwiki/.ai_tasks/pending_tasks_*.json
+     ```
+
+4. **AI补充工作流程**
+   - 查看生成的提示文件（`.ai_tasks/ai_prompts_*.md`）
+   - 每个任务包含：
+     * 详细的补充要求和格式说明
+     * 从源码自动提取的上下文（函数、结构体、枚举等）
+     * 当前占位内容
+   - AI助手根据提示文件逐个完成任务，直接编辑对应的文档文件
+
+5. **验证与刷新**
+   - 完成补充后，运行构建脚本：`python .claude/skills/projwiki_manager/scripts/build_wiki.py`
+   - 在HTML查看器中验证文档质量
 
 ### 流程一：创建新文档
 
@@ -197,6 +236,48 @@ status: draft | review | published
 - 硬件接口模板：`templates/hw_interface_doc.md`
 - 变更日志模板：`templates/changelog.md`
 
+## AI填空标记格式
+
+AI填空模板使用特殊的HTML注释标记来定义待补充区域：
+
+```markdown
+<!-- AI_FILL_START:identifier
+Type: 任务类型（如 function_list, description, code_block 等）
+Priority: 优先级（high, medium, low）
+Requirement: 详细的补充要求说明
+Context: 上下文类型（source_analysis, existing_comments, both）
+Format: 格式提示（可选，如表格格式、代码块语言等）
+-->
+[占位内容或留空]
+<!-- AI_FILL_END:identifier -->
+```
+
+**支持的任务类型**：
+- `description` - 文字描述
+- `function_list` - 功能列表
+- `function_table` - 函数表格
+- `code_block` - 代码块（结构体、枚举等）
+- `code_example` - 使用示例代码
+- `table` - 表格（如ISR表、故障处理表等）
+- `specification_list` - 规格列表
+- `dependency_analysis` - 依赖关系分析
+- `design_analysis` - 设计分析
+- `link_list` - 相关文档链接列表
+
+**示例**：
+```markdown
+<!-- AI_FILL_START:main_functions
+Type: function_list
+Priority: high
+Requirement: 通过分析源码中的函数和注释，列举该模块的3-5个主要功能点。每个功能点需要简洁说明其作用。优先关注public接口函数体现的功能。
+Context: source_analysis
+-->
+- 功能1：简要说明
+- 功能2：简要说明
+- 功能3：简要说明
+<!-- AI_FILL_END:main_functions -->
+```
+
 ## 使用示例
 
 详细的使用示例请参考：`EXAMPLES.md`
@@ -208,3 +289,6 @@ status: draft | review | published
 3. 每次文档变更后建议重新生成HTML站点
 4. 涉及安全关键内容的文档变更需要标注 `status: review`
 5. 构建脚本需要 Python 3.6+ 环境
+6. AI填空功能完全可选，可以继续使用标准模板
+7. AI任务文件（JSON和提示文件）保存在 `.ai_tasks/` 目录，不会影响文档结构
+8. AI补充的内容需要人工审核，确保准确性和完整性

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 @file    scaffold_docs.py
-@brief   ProjWiki 文档脚手架工具 - 扫描源码自动生成模块文档草稿
+@brief   ProjWiki 文档脚手架工具 - 扫描源码自动生成模块文档草稿（含AI填空任务生成）
 @author  Yarrow
 @date    2025-07-11
 @attention 仅生成不存在的文档，不会覆盖已有文档
@@ -13,6 +13,20 @@ import re
 import sys
 from datetime import datetime
 from pathlib import Path
+
+# 导入AI任务工具
+try:
+    from ai_task_utils import (
+        create_tasks_from_markers,
+        extract_ai_fill_markers,
+        generate_task_summary,
+        save_tasks_to_json,
+    )
+
+    AI_TASK_SUPPORT = True
+except ImportError:
+    AI_TASK_SUPPORT = False
+    print("[WARN] ai_task_utils not found. AI task generation disabled.")
 
 
 def find_project_root():
@@ -40,18 +54,26 @@ def find_project_root():
     return Path(os.getcwd())
 
 
-def find_template():
+def find_template(use_ai_template=False):
     """查找模块文档模板文件"""
     # 脚本所在目录
     script_dir = Path(__file__).resolve().parent
-    # 尝试查找 ../templates/module_doc.md
-    tpl_path = script_dir.parent / "templates" / "module_doc.md"
+
+    # 根据参数选择模板
+    template_name = "module_doc_ai.md" if use_ai_template else "module_doc.md"
+
+    # 尝试查找 ../templates/模板文件
+    tpl_path = script_dir.parent / "templates" / template_name
 
     if not tpl_path.exists():
         # 尝试查找当前目录下的 templates (如果不按标准结构部署)
-        tpl_path = script_dir / "templates" / "module_doc.md"
+        tpl_path = script_dir / "templates" / template_name
 
     if not tpl_path.exists():
+        # 如果AI模板不存在，回退到普通模板
+        if use_ai_template:
+            print(f"[WARN] AI template not found, falling back to standard template")
+            return find_template(use_ai_template=False)
         print(f"[ERROR] Template not found at {tpl_path}")
         sys.exit(1)
 
@@ -96,12 +118,14 @@ def scan_sources(root_dir):
     return modules
 
 
-def generate_doc(module_name, info, template_content, output_dir, project_root):
-    """生成单个模块文档"""
+def generate_doc(
+    module_name, info, template_content, output_dir, project_root, collect_tasks=False
+):
+    """生成单个模块文档，可选生成AI填空任务"""
     md_path = output_dir / f"{module_name}.md"
 
     if md_path.exists():
-        return False  # Skip existing
+        return None  # Skip existing
 
     # 准备替换内容
     c_files = [
@@ -156,13 +180,34 @@ def generate_doc(module_name, info, template_content, output_dir, project_root):
     # 写入文件
     try:
         md_path.write_text(content, encoding="utf-8")
-        return True
+
+        # 如果启用AI任务收集，提取任务
+        if collect_tasks and AI_TASK_SUPPORT:
+            markers = extract_ai_fill_markers(content, str(md_path))
+            if markers:
+                tasks = create_tasks_from_markers(
+                    markers,
+                    str(md_path.relative_to(project_root)),
+                    module_name,
+                    source_list.strip().split("\n"),
+                )
+                return tasks
+
+        return []  # 返回空任务列表表示成功但无任务
     except Exception as e:
         print(f"[ERROR] Failed to write {md_path}: {e}")
-        return False
+        return None
 
 
 def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(description="ProjWiki文档脚手架工具")
+    parser.add_argument(
+        "--ai-fill", action="store_true", help="使用AI填空模板并生成待补充任务"
+    )
+    args = parser.parse_args()
+
     try:
         root = find_project_root()
     except SystemExit:
@@ -171,17 +216,24 @@ def main():
         return 1
 
     wiki_modules_dir = root / ".zed" / ".projwiki" / "modules"
+    ai_tasks_dir = root / ".zed" / ".projwiki" / ".ai_tasks"
 
     # 确保输出目录存在
     wiki_modules_dir.mkdir(parents=True, exist_ok=True)
+    if args.ai_fill:
+        ai_tasks_dir.mkdir(parents=True, exist_ok=True)
 
     # 加载模板
-    tpl_path = find_template()
+    tpl_path = find_template(use_ai_template=args.ai_fill)
     try:
         tpl_content = tpl_path.read_text(encoding="utf-8")
     except Exception as e:
         print(f"[ERROR] Could not read template: {e}")
         return 1
+
+    print(f"[INFO] Using template: {tpl_path.name}")
+    if args.ai_fill:
+        print("[INFO] AI填空模式已启用")
 
     # 扫描源码
     modules = scan_sources(root)
@@ -189,20 +241,45 @@ def main():
 
     created_count = 0
     skipped_count = 0
+    all_tasks = []
 
     for name, info in modules.items():
         # 忽略只有头文件且看起来像公共定义的模块 (可选)
         if not info["c"] and len(info["h"]) == 1:
             continue
 
-        if generate_doc(name, info, tpl_content, wiki_modules_dir, root):
-            print(f"[NEW] Created {name}.md")
-            created_count += 1
-        else:
+        result = generate_doc(
+            name, info, tpl_content, wiki_modules_dir, root, collect_tasks=args.ai_fill
+        )
+
+        if result is None:
+            # 跳过已存在的文档
             skipped_count += 1
+        elif isinstance(result, list):
+            # 成功创建，可能有任务
+            print(f"[NEW] Created {name}.md")
+            if result:
+                print(f"      └─ 生成了 {len(result)} 个AI填空任务")
+                all_tasks.extend(result)
+            created_count += 1
 
     print("-" * 40)
     print(f"[SUMMARY] Created: {created_count}, Skipped (Existing): {skipped_count}")
+
+    # 保存AI任务
+    if args.ai_fill and all_tasks and AI_TASK_SUPPORT:
+        task_file = (
+            ai_tasks_dir
+            / f"pending_tasks_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
+        save_tasks_to_json(all_tasks, task_file)
+        print(f"\n[AI TASKS] 生成了 {len(all_tasks)} 个待补充任务")
+        print(f"[AI TASKS] 任务文件: {task_file}")
+        print("\n" + generate_task_summary(all_tasks))
+        print(
+            f"\n[NEXT] 运行 'python scripts/ai_complete.py {task_file}' 来处理AI填空任务"
+        )
+
     print(
         f"[NEXT] Run 'python .claude/skills/projwiki_manager/scripts/build_wiki.py' to update HTML."
     )
