@@ -50,6 +50,8 @@ def get_source_mtime(root_dir, module_name):
             dirs.remove(".zed")
         if "build" in dirs:
             dirs.remove("build")
+        if "Firmware" in dirs:
+            dirs.remove("Firmware")
 
         for file in files:
             if file == f"{module_name}.c" or file == f"{module_name}.h":

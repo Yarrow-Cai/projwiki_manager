@@ -1,1335 +1,1424 @@
 <!doctype html>
 <html lang="zh-CN">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>__PROJECT_NAME__ - 项目技术文档</title>
-        <style>
-            :root {
-                --bg: #fff;
-                --bg2: #f8f9fa;
-                --bgS: #f0f2f5;
-                --bgH: #e8eaed;
-                --bgA: #d3e3fd;
-                --bgC: #f5f5f5;
-                --bgCB: #1e1e2e;
-                --tx: #1f2937;
-                --tx2: #6b7280;
-                --txC: #cdd6f4;
-                --lk: #2563eb;
-                --bd: #e5e7eb;
-                --ac: #3b82f6;
-                --wBg: #fef3c7;
-                --wBd: #f59e0b;
-                --wTx: #92400e;
-                --sBg: #d1fae5;
-                --sTx: #065f46;
-                --dBg: #fef3c7;
-                --dTx: #92400e;
-                --rBg: #dbeafe;
-                --rTx: #1e40af;
-                --rad: 8px;
-                --sw: 280px;
-                --tw: 220px;
-            }
-            [data-theme="dark"] {
-                --bg: #1a1b26;
-                --bg2: #24283b;
-                --bgS: #1f2335;
-                --bgH: #292e42;
-                --bgA: #3d59a1;
-                --bgC: #292e42;
-                --bgCB: #16161e;
-                --tx: #c0caf5;
-                --tx2: #9aa5ce;
-                --txC: #c0caf5;
-                --lk: #7aa2f7;
-                --bd: #3b4261;
-                --ac: #7aa2f7;
-                --wBg: #3b2f1a;
-                --wBd: #e0af68;
-                --wTx: #e0af68;
-                --sBg: #1a3b2f;
-                --sTx: #9ece6a;
-                --dBg: #3b2f1a;
-                --dTx: #e0af68;
-                --rBg: #1a2a4a;
-                --rTx: #7aa2f7;
-            }
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            body {
-                font-family:
-                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-                    "Noto Sans SC", sans-serif;
-                background: var(--bg);
-                color: var(--tx);
-                line-height: 1.6;
-                overflow: hidden;
-                height: 100vh;
-            }
-            .hdr {
-                height: 52px;
-                background: var(--bgS);
-                border-bottom: 1px solid var(--bd);
-                display: flex;
-                align-items: center;
-                padding: 0 16px;
-                gap: 12px;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 100;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-            }
-            .hdr-logo {
-                font-size: 16px;
-                font-weight: 700;
-                color: var(--ac);
-                white-space: nowrap;
-            }
-            .sbox {
-                flex: 1;
-                max-width: 480px;
-                position: relative;
-            }
-            .sbox input {
-                width: 100%;
-                padding: 7px 12px 7px 34px;
-                border: 1px solid var(--bd);
-                border-radius: 6px;
-                background: var(--bg);
-                color: var(--tx);
-                font-size: 14px;
-                outline: none;
-                transition:
-                    border-color 0.2s,
-                    box-shadow 0.2s;
-            }
-            .sbox input:focus {
-                border-color: var(--ac);
-                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-            }
-            .sbox .sico {
-                position: absolute;
-                left: 10px;
-                top: 50%;
-                transform: translateY(-50%);
-                color: var(--tx2);
-                pointer-events: none;
-            }
-            .sres {
-                position: absolute;
-                top: calc(100% + 4px);
-                left: 0;
-                right: 0;
-                background: var(--bg);
-                border: 1px solid var(--bd);
-                border-radius: var(--rad);
-                max-height: 400px;
-                overflow-y: auto;
-                display: none;
-                z-index: 200;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            }
-            .sres.on {
-                display: block;
-            }
-            .sri {
-                padding: 10px 14px;
-                cursor: pointer;
-                border-bottom: 1px solid var(--bd);
-                transition: background 0.15s;
-            }
-            .sri:hover {
-                background: var(--bgH);
-            }
-            .sri:last-child {
-                border-bottom: none;
-            }
-            .sri-t {
-                font-weight: 600;
-                font-size: 14px;
-                margin-bottom: 2px;
-            }
-            .sri-p {
-                font-size: 12px;
-                color: var(--tx2);
-            }
-            .sri-s {
-                font-size: 12px;
-                color: var(--tx2);
-                margin-top: 3px;
-            }
-            .sri-s mark {
-                background: #fde68a;
-                color: #1f2937;
-                padding: 0 2px;
-                border-radius: 2px;
-            }
-            [data-theme="dark"] .sri-s mark {
-                background: #e0af68;
-                color: #1a1b26;
-            }
-            .acts {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin-left: auto;
-            }
-            .ibtn {
-                width: 34px;
-                height: 34px;
-                border: none;
-                background: transparent;
-                color: var(--tx2);
-                border-radius: 6px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition:
-                    background 0.15s,
-                    color 0.15s;
-            }
-            .ibtn:hover {
-                background: var(--bgH);
-                color: var(--tx);
-            }
-            .dcnt {
-                font-size: 12px;
-                color: var(--tx2);
-                padding: 3px 8px;
-                background: var(--bgH);
-                border-radius: 10px;
-                white-space: nowrap;
-            }
-            .lay {
-                display: flex;
-                height: calc(100vh - 52px);
-                margin-top: 52px;
-            }
-            .side {
-                width: var(--sw);
-                min-width: var(--sw);
-                background: var(--bgS);
-                border-right: 1px solid var(--bd);
-                overflow-y: auto;
-                padding: 12px 0;
-                transition:
-                    width 0.3s,
-                    min-width 0.3s;
-            }
-            .side.shut {
-                width: 0;
-                min-width: 0;
-                padding: 0;
-                overflow: hidden;
-                border-right: none;
-            }
-            .shdr {
-                display: flex;
-                align-items: center;
-                padding: 8px 16px;
-                cursor: pointer;
-                font-size: 12px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                color: var(--tx2);
-                user-select: none;
-                transition: color 0.15s;
-            }
-            .shdr:hover {
-                color: var(--tx);
-            }
-            .shdr .arr {
-                margin-right: 6px;
-                font-size: 10px;
-                transition: transform 0.2s;
-                display: inline-block;
-                width: 14px;
-            }
-            .shdr .arr.shut {
-                transform: rotate(-90deg);
-            }
-            .shdr .cnt {
-                margin-left: auto;
-                background: var(--bgH);
-                padding: 1px 7px;
-                border-radius: 10px;
-                font-size: 11px;
-                font-weight: 500;
-            }
-            .sitms {
-                padding: 0 8px;
-            }
-            .sitms.shut {
-                display: none;
-            }
-            .sitm {
-                display: flex;
-                align-items: center;
-                padding: 6px 12px 6px 28px;
-                cursor: pointer;
-                border-radius: 6px;
-                font-size: 13px;
-                color: var(--tx);
-                gap: 6px;
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                transition: background 0.15s;
-            }
-            .sitm:hover {
-                background: var(--bgH);
-            }
-            .sitm.on {
-                background: var(--bgA);
-                font-weight: 600;
-            }
-            .sdot {
-                width: 6px;
-                height: 6px;
-                border-radius: 50%;
-                flex-shrink: 0;
-            }
-            .sdot.published {
-                background: #10b981;
-            }
-            .sdot.draft {
-                background: #f59e0b;
-            }
-            .sdot.review {
-                background: #3b82f6;
-            }
-            .mn {
-                flex: 1;
-                overflow-y: auto;
-                padding: 32px 48px;
-                min-width: 0;
-            }
-            .dhdr {
-                margin-bottom: 24px;
-                padding-bottom: 16px;
-                border-bottom: 2px solid var(--bd);
-            }
-            .dbc {
-                font-size: 13px;
-                color: var(--tx2);
-                margin-bottom: 8px;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                flex-wrap: wrap;
-            }
-            .dbc a {
-                color: var(--lk);
-                text-decoration: none;
-                cursor: pointer;
-            }
-            .dbc a:hover {
-                text-decoration: underline;
-            }
-            .dmt {
-                display: flex;
-                gap: 16px;
-                flex-wrap: wrap;
-                margin-top: 8px;
-                font-size: 13px;
-                color: var(--tx2);
-            }
-            .bdg {
-                display: inline-block;
-                padding: 2px 8px;
-                border-radius: 10px;
-                font-size: 11px;
-                font-weight: 600;
-            }
-            .bdg.published {
-                background: var(--sBg);
-                color: var(--sTx);
-            }
-            .bdg.draft {
-                background: var(--dBg);
-                color: var(--dTx);
-            }
-            .bdg.review {
-                background: var(--rBg);
-                color: var(--rTx);
-            }
-            .tg {
-                display: inline-block;
-                padding: 1px 6px;
-                background: var(--bgH);
-                border-radius: 4px;
-                font-size: 11px;
-                color: var(--tx2);
-                margin-right: 4px;
-            }
-            .md {
-                max-width: 860px;
-            }
-            .md h1 {
-                font-size: 28px;
-                font-weight: 700;
-                margin: 32px 0 16px;
-                padding-bottom: 8px;
-                border-bottom: 2px solid var(--bd);
-            }
-            .md h2 {
-                font-size: 22px;
-                font-weight: 700;
-                margin: 28px 0 12px;
-                padding-bottom: 6px;
-                border-bottom: 1px solid var(--bd);
-            }
-            .md h3 {
-                font-size: 18px;
-                font-weight: 600;
-                margin: 24px 0 10px;
-            }
-            .md h4 {
-                font-size: 16px;
-                font-weight: 600;
-                margin: 20px 0 8px;
-            }
-            .md h5 {
-                font-size: 14px;
-                font-weight: 600;
-                margin: 16px 0 6px;
-            }
-            .md h6 {
-                font-size: 13px;
-                font-weight: 600;
-                margin: 14px 0 6px;
-                color: var(--tx2);
-            }
-            .md h1:first-child {
-                margin-top: 0;
-            }
-            .md p {
-                margin: 0 0 14px;
-                line-height: 1.75;
-            }
-            .md a {
-                color: var(--lk);
-                text-decoration: none;
-            }
-            .md a:hover {
-                text-decoration: underline;
-            }
-            .md strong {
-                font-weight: 700;
-            }
-            .md em {
-                font-style: italic;
-            }
-            .md code {
-                font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
-                font-size: 0.875em;
-                background: var(--bgC);
-                padding: 2px 6px;
-                border-radius: 4px;
-                color: #e11d48;
-            }
-            [data-theme="dark"] .md code {
-                color: #f7768e;
-            }
-            .md pre {
-                background: var(--bgCB);
-                border-radius: var(--rad);
-                padding: 16px 20px;
-                overflow-x: auto;
-                margin: 0 0 16px;
-                position: relative;
-            }
-            .md pre code {
-                background: none;
-                padding: 0;
-                color: var(--txC);
-                font-size: 13px;
-                line-height: 1.6;
-            }
-            .md pre .plbl {
-                position: absolute;
-                top: 6px;
-                right: 10px;
-                font-size: 11px;
-                color: #6b7280;
-                text-transform: uppercase;
-                pointer-events: none;
-            }
-            .md blockquote {
-                border-left: 4px solid var(--ac);
-                margin: 0 0 16px;
-                padding: 12px 16px;
-                background: var(--bg2);
-                border-radius: 0 var(--rad) var(--rad) 0;
-                color: var(--tx2);
-            }
-            .md blockquote p:last-child {
-                margin-bottom: 0;
-            }
-            .md blockquote strong {
-                color: var(--tx);
-            }
-            .md .bqw {
-                border-left-color: var(--wBd);
-                background: var(--wBg);
-                color: var(--wTx);
-            }
-            .md .bqw strong {
-                color: var(--wTx);
-            }
-            .md ul,
-            .md ol {
-                margin: 0 0 14px;
-                padding-left: 28px;
-            }
-            .md li {
-                margin-bottom: 4px;
-                line-height: 1.7;
-            }
-            .md li > ul,
-            .md li > ol {
-                margin-top: 4px;
-                margin-bottom: 4px;
-            }
-            .md table {
-                border-collapse: collapse;
-                margin: 0 0 16px;
-                font-size: 14px;
-                width: auto;
-                min-width: 50%;
-                max-width: 100%;
-            }
-            .md .twrap {
-                overflow-x: auto;
-                margin: 0 0 16px;
-                border-radius: var(--rad);
-                border: 1px solid var(--bd);
-            }
-            .md .twrap table {
-                margin: 0;
-            }
-            .md thead {
-                background: var(--bg2);
-            }
-            .md th,
-            .md td {
-                padding: 8px 14px;
-                border: 1px solid var(--bd);
-                text-align: left;
-            }
-            .md th {
-                font-weight: 600;
-                white-space: nowrap;
-            }
-            .md tr:nth-child(even) {
-                background: var(--bg2);
-            }
-            .md hr {
-                border: none;
-                border-top: 2px solid var(--bd);
-                margin: 24px 0;
-            }
-            .md img {
-                max-width: 100%;
-                border-radius: var(--rad);
-                margin: 8px 0;
-            }
-            .toc {
-                width: var(--tw);
-                min-width: var(--tw);
-                padding: 16px 12px;
-                border-left: 1px solid var(--bd);
-                overflow-y: auto;
-                font-size: 12px;
-            }
-            .toc-ti {
-                font-weight: 700;
-                font-size: 11px;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                color: var(--tx2);
-                margin-bottom: 10px;
-                padding: 0 4px;
-            }
-            .toc-i {
-                display: block;
-                padding: 3px 8px;
-                color: var(--tx2);
-                text-decoration: none;
-                border-radius: 4px;
-                cursor: pointer;
-                transition:
-                    color 0.15s,
-                    background 0.15s;
-                line-height: 1.5;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-            .toc-i:hover {
-                color: var(--tx);
-                background: var(--bgH);
-            }
-            .toc-i.on {
-                color: var(--ac);
-                font-weight: 600;
-            }
-            .toc-i[data-l="2"] {
-                padding-left: 8px;
-            }
-            .toc-i[data-l="3"] {
-                padding-left: 20px;
-            }
-            .toc-i[data-l="4"] {
-                padding-left: 32px;
-            }
-            .toc-i[data-l="5"] {
-                padding-left: 44px;
-            }
-            .welc {
-                text-align: center;
-                padding: 60px 20px;
-                max-width: 600px;
-                margin: 0 auto;
-            }
-            .welc .wico {
-                font-size: 64px;
-                margin-bottom: 20px;
-            }
-            .welc h2 {
-                font-size: 24px;
-                margin-bottom: 12px;
-            }
-            .welc p {
-                color: var(--tx2);
-                margin-bottom: 24px;
-                line-height: 1.7;
-            }
-            .wsts {
-                display: flex;
-                justify-content: center;
-                gap: 32px;
-                margin-top: 32px;
-            }
-            .wsts .sv {
-                font-size: 32px;
-                font-weight: 700;
-                color: var(--ac);
-            }
-            .wsts .sl {
-                font-size: 13px;
-                color: var(--tx2);
-                margin-top: 4px;
-            }
-            .btt {
-                position: fixed;
-                bottom: 24px;
-                right: 24px;
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                background: var(--ac);
-                color: #fff;
-                border: none;
-                cursor: pointer;
-                display: none;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                z-index: 50;
-                font-size: 18px;
-                transition: transform 0.2s;
-            }
-            .btt.vis {
-                display: flex;
-            }
-            .btt:hover {
-                transform: scale(1.1);
-            }
-            @media (max-width: 1100px) {
-                .toc {
-                    display: none;
-                }
-            }
-            @media (max-width: 768px) {
-                .side {
-                    position: fixed;
-                    z-index: 90;
-                    top: 52px;
-                    left: 0;
-                    bottom: 0;
-                    transform: translateX(-100%);
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                }
-                .side.mob {
-                    transform: translateX(0);
-                }
-                .side.shut {
-                    transform: translateX(-100%);
-                }
-                .mn {
-                    padding: 20px 16px;
-                }
-                .hdr-logo span {
-                    display: none;
-                }
-            }
-            ::-webkit-scrollbar {
-                width: 6px;
-                height: 6px;
-            }
-            ::-webkit-scrollbar-track {
-                background: transparent;
-            }
-            ::-webkit-scrollbar-thumb {
-                background: var(--bd);
-                border-radius: 3px;
-            }
-            ::-webkit-scrollbar-thumb:hover {
-                background: var(--tx2);
-            }
-            @media print {
-                .hdr,
-                .side,
-                .toc,
-                .btt {
-                    display: none !important;
-                }
-                .lay {
-                    display: block;
-                }
-                .mn {
-                    padding: 0;
-                    overflow: visible;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <!-- Header -->
-        <div class="hdr">
-            <button class="ibtn" id="togSide" title="Toggle sidebar">
-                <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                >
-                    <line x1="3" y1="12" x2="21" y2="12" />
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <line x1="3" y1="18" x2="21" y2="18" />
-                </svg>
-            </button>
-            <div class="hdr-logo">
-                &#128214; <span>__PROJECT_NAME__ Docs</span>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>__PROJECT_NAME__ - 项目技术文档</title>
+    <style>
+      :root {
+        --bg: #fff;
+        --bg2: #f8f9fa;
+        --bgS: #f0f2f5;
+        --bgH: #e8eaed;
+        --bgA: #d3e3fd;
+        --bgC: #f5f5f5;
+        --bgCB: #1e1e2e;
+        --tx: #1f2937;
+        --tx2: #6b7280;
+        --txC: #cdd6f4;
+        --lk: #2563eb;
+        --bd: #e5e7eb;
+        --ac: #3b82f6;
+        --wBg: #fef3c7;
+        --wBd: #f59e0b;
+        --wTx: #92400e;
+        --sBg: #d1fae5;
+        --sTx: #065f46;
+        --dBg: #fef3c7;
+        --dTx: #92400e;
+        --rBg: #dbeafe;
+        --rTx: #1e40af;
+        --rad: 8px;
+        --sw: 280px;
+        --tw: 220px;
+      }
+      [data-theme="dark"] {
+        --bg: #1a1b26;
+        --bg2: #24283b;
+        --bgS: #1f2335;
+        --bgH: #292e42;
+        --bgA: #3d59a1;
+        --bgC: #292e42;
+        --bgCB: #16161e;
+        --tx: #c0caf5;
+        --tx2: #9aa5ce;
+        --txC: #c0caf5;
+        --lk: #7aa2f7;
+        --bd: #3b4261;
+        --ac: #7aa2f7;
+        --wBg: #3b2f1a;
+        --wBd: #e0af68;
+        --wTx: #e0af68;
+        --sBg: #1a3b2f;
+        --sTx: #9ece6a;
+        --dBg: #3b2f1a;
+        --dTx: #e0af68;
+        --rBg: #1a2a4a;
+        --rTx: #7aa2f7;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC",
+          sans-serif;
+        background: var(--bg);
+        color: var(--tx);
+        line-height: 1.6;
+        overflow: hidden;
+        height: 100vh;
+      }
+      .hdr {
+        height: 52px;
+        background: var(--bgS);
+        border-bottom: 1px solid var(--bd);
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        gap: 12px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+      .hdr-logo {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--ac);
+        white-space: nowrap;
+      }
+      .sbox {
+        flex: 1;
+        max-width: 480px;
+        position: relative;
+      }
+      .sbox input {
+        width: 100%;
+        padding: 7px 12px 7px 34px;
+        border: 1px solid var(--bd);
+        border-radius: 6px;
+        background: var(--bg);
+        color: var(--tx);
+        font-size: 14px;
+        outline: none;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+      .sbox input:focus {
+        border-color: var(--ac);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      }
+      .sbox .sico {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--tx2);
+        pointer-events: none;
+      }
+      .sres {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        background: var(--bg);
+        border: 1px solid var(--bd);
+        border-radius: var(--rad);
+        max-height: 400px;
+        overflow-y: auto;
+        display: none;
+        z-index: 200;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      .sres.on {
+        display: block;
+      }
+      .sri {
+        padding: 10px 14px;
+        cursor: pointer;
+        border-bottom: 1px solid var(--bd);
+        transition: background 0.15s;
+      }
+      .sri:hover {
+        background: var(--bgH);
+      }
+      .sri:last-child {
+        border-bottom: none;
+      }
+      .sri-t {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 2px;
+      }
+      .sri-p {
+        font-size: 12px;
+        color: var(--tx2);
+      }
+      .sri-s {
+        font-size: 12px;
+        color: var(--tx2);
+        margin-top: 3px;
+      }
+      .sri-s mark {
+        background: #fde68a;
+        color: #1f2937;
+        padding: 0 2px;
+        border-radius: 2px;
+      }
+      [data-theme="dark"] .sri-s mark {
+        background: #e0af68;
+        color: #1a1b26;
+      }
+      .acts {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+      }
+      .ibtn {
+        width: 34px;
+        height: 34px;
+        border: none;
+        background: transparent;
+        color: var(--tx2);
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+      .ibtn:hover {
+        background: var(--bgH);
+        color: var(--tx);
+      }
+      .dcnt {
+        font-size: 12px;
+        color: var(--tx2);
+        padding: 3px 8px;
+        background: var(--bgH);
+        border-radius: 10px;
+        white-space: nowrap;
+      }
+      .lay {
+        display: flex;
+        height: calc(100vh - 52px);
+        margin-top: 52px;
+      }
+      .side {
+        width: var(--sw);
+        min-width: var(--sw);
+        background: var(--bgS);
+        border-right: 1px solid var(--bd);
+        overflow-y: auto;
+        padding: 12px 0;
+        transition:
+          width 0.3s,
+          min-width 0.3s;
+      }
+      .side.shut {
+        width: 0;
+        min-width: 0;
+        padding: 0;
+        overflow: hidden;
+        border-right: none;
+      }
+      .shdr {
+        display: flex;
+        align-items: center;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--tx2);
+        user-select: none;
+        transition: color 0.15s;
+      }
+      .shdr:hover {
+        color: var(--tx);
+      }
+      .shdr .arr {
+        margin-right: 6px;
+        font-size: 10px;
+        transition: transform 0.2s;
+        display: inline-block;
+        width: 14px;
+      }
+      .shdr .arr.shut {
+        transform: rotate(-90deg);
+      }
+      .shdr .cnt {
+        margin-left: auto;
+        background: var(--bgH);
+        padding: 1px 7px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 500;
+      }
+      .sitms {
+        padding: 0 8px;
+      }
+      .sitms.shut {
+        display: none;
+      }
+      .sitm {
+        display: flex;
+        align-items: center;
+        padding: 5px 12px;
+        cursor: pointer;
+        border-radius: 6px;
+        font-size: 13px;
+        color: var(--tx);
+        gap: 6px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        transition: background 0.15s;
+      }
+      .sitm:hover {
+        background: var(--bgH);
+      }
+      .sitm.on {
+        background: var(--bgA);
+        font-weight: 600;
+      }
+      .sdot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .sdot.published {
+        background: #10b981;
+      }
+      .sdot.draft {
+        background: #f59e0b;
+      }
+      .sdot.review {
+        background: #3b82f6;
+      }
+      /* Subfolder styles */
+      .sfold {
+        display: flex;
+        align-items: center;
+        padding: 5px 12px;
+        cursor: pointer;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--tx2);
+        gap: 6px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        transition: background 0.15s;
+        margin-top: 2px;
+      }
+      .sfold:hover {
+        background: var(--bgH);
+      }
+      .sfold .arr {
+        font-size: 10px;
+        transition: transform 0.2s;
+        color: var(--tx2);
+      }
+      .sfold .arr.shut {
+        transform: rotate(-90deg);
+      }
+      .sfold .cnt {
+        margin-left: auto;
+        font-size: 11px;
+        color: var(--tx2);
+        background: var(--bgH);
+        padding: 1px 6px;
+        border-radius: 10px;
+        font-weight: normal;
+      }
+      .sfold-items {
+        overflow: hidden;
+      }
+      .sfold-items.shut {
+        display: none;
+      }
+      .mn {
+        flex: 1;
+        overflow-y: auto;
+        padding: 32px 48px;
+        min-width: 0;
+      }
+      .dhdr {
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid var(--bd);
+      }
+      .dbc {
+        font-size: 13px;
+        color: var(--tx2);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .dbc a {
+        color: var(--lk);
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .dbc a:hover {
+        text-decoration: underline;
+      }
+      .dmt {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+        font-size: 13px;
+        color: var(--tx2);
+      }
+      .bdg {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .bdg.published {
+        background: var(--sBg);
+        color: var(--sTx);
+      }
+      .bdg.draft {
+        background: var(--dBg);
+        color: var(--dTx);
+      }
+      .bdg.review {
+        background: var(--rBg);
+        color: var(--rTx);
+      }
+      .tg {
+        display: inline-block;
+        padding: 1px 6px;
+        background: var(--bgH);
+        border-radius: 4px;
+        font-size: 11px;
+        color: var(--tx2);
+        margin-right: 4px;
+      }
+      .md {
+        max-width: 860px;
+      }
+      .md h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 32px 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--bd);
+      }
+      .md h2 {
+        font-size: 22px;
+        font-weight: 700;
+        margin: 28px 0 12px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--bd);
+      }
+      .md h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 24px 0 10px;
+      }
+      .md h4 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 20px 0 8px;
+      }
+      .md h5 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 16px 0 6px;
+      }
+      .md h6 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 14px 0 6px;
+        color: var(--tx2);
+      }
+      .md h1:first-child {
+        margin-top: 0;
+      }
+      .md p {
+        margin: 0 0 14px;
+        line-height: 1.75;
+      }
+      .md a {
+        color: var(--lk);
+        text-decoration: none;
+      }
+      .md a:hover {
+        text-decoration: underline;
+      }
+      .md strong {
+        font-weight: 700;
+      }
+      .md em {
+        font-style: italic;
+      }
+      .md code {
+        font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+        font-size: 0.875em;
+        background: var(--bgC);
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: #e11d48;
+      }
+      [data-theme="dark"] .md code {
+        color: #f7768e;
+      }
+      .md pre {
+        background: var(--bgCB);
+        border-radius: var(--rad);
+        padding: 16px 20px;
+        overflow-x: auto;
+        margin: 0 0 16px;
+        position: relative;
+      }
+      .md pre code {
+        background: none;
+        padding: 0;
+        color: var(--txC);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      .md pre .plbl {
+        position: absolute;
+        top: 6px;
+        right: 10px;
+        font-size: 11px;
+        color: #6b7280;
+        text-transform: uppercase;
+        pointer-events: none;
+      }
+      .md blockquote {
+        border-left: 4px solid var(--ac);
+        margin: 0 0 16px;
+        padding: 12px 16px;
+        background: var(--bg2);
+        border-radius: 0 var(--rad) var(--rad) 0;
+        color: var(--tx2);
+      }
+      .md blockquote p:last-child {
+        margin-bottom: 0;
+      }
+      .md blockquote strong {
+        color: var(--tx);
+      }
+      .md .bqw {
+        border-left-color: var(--wBd);
+        background: var(--wBg);
+        color: var(--wTx);
+      }
+      .md .bqw strong {
+        color: var(--wTx);
+      }
+      .md ul,
+      .md ol {
+        margin: 0 0 14px;
+        padding-left: 28px;
+      }
+      .md li {
+        margin-bottom: 4px;
+        line-height: 1.7;
+      }
+      .md li > ul,
+      .md li > ol {
+        margin-top: 4px;
+        margin-bottom: 4px;
+      }
+      .md table {
+        border-collapse: collapse;
+        margin: 0 0 16px;
+        font-size: 14px;
+        width: auto;
+        min-width: 50%;
+        max-width: 100%;
+      }
+      .md .twrap {
+        overflow-x: auto;
+        margin: 0 0 16px;
+        border-radius: var(--rad);
+        border: 1px solid var(--bd);
+      }
+      .md .twrap table {
+        margin: 0;
+      }
+      .md thead {
+        background: var(--bg2);
+      }
+      .md th,
+      .md td {
+        padding: 8px 14px;
+        border: 1px solid var(--bd);
+        text-align: left;
+      }
+      .md th {
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .md tr:nth-child(even) {
+        background: var(--bg2);
+      }
+      .md hr {
+        border: none;
+        border-top: 2px solid var(--bd);
+        margin: 24px 0;
+      }
+      .md img {
+        max-width: 100%;
+        border-radius: var(--rad);
+        margin: 8px 0;
+      }
+      .toc {
+        width: var(--tw);
+        min-width: var(--tw);
+        padding: 16px 12px;
+        border-left: 1px solid var(--bd);
+        overflow-y: auto;
+        font-size: 12px;
+      }
+      .toc-ti {
+        font-weight: 700;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--tx2);
+        margin-bottom: 10px;
+        padding: 0 4px;
+      }
+      .toc-i {
+        display: block;
+        padding: 3px 8px;
+        color: var(--tx2);
+        text-decoration: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition:
+          color 0.15s,
+          background 0.15s;
+        line-height: 1.5;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .toc-i:hover {
+        color: var(--tx);
+        background: var(--bgH);
+      }
+      .toc-i.on {
+        color: var(--ac);
+        font-weight: 600;
+      }
+      .toc-i[data-l="2"] {
+        padding-left: 8px;
+      }
+      .toc-i[data-l="3"] {
+        padding-left: 20px;
+      }
+      .toc-i[data-l="4"] {
+        padding-left: 32px;
+      }
+      .toc-i[data-l="5"] {
+        padding-left: 44px;
+      }
+      .welc {
+        text-align: center;
+        padding: 60px 20px;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .welc .wico {
+        font-size: 64px;
+        margin-bottom: 20px;
+      }
+      .welc h2 {
+        font-size: 24px;
+        margin-bottom: 12px;
+      }
+      .welc p {
+        color: var(--tx2);
+        margin-bottom: 24px;
+        line-height: 1.7;
+      }
+      .wsts {
+        display: flex;
+        justify-content: center;
+        gap: 32px;
+        margin-top: 32px;
+      }
+      .wsts .sv {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--ac);
+      }
+      .wsts .sl {
+        font-size: 13px;
+        color: var(--tx2);
+        margin-top: 4px;
+      }
+      .btt {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--ac);
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 50;
+        font-size: 18px;
+        transition: transform 0.2s;
+      }
+      .btt.vis {
+        display: flex;
+      }
+      .btt:hover {
+        transform: scale(1.1);
+      }
+      @media (max-width: 1100px) {
+        .toc {
+          display: none;
+        }
+      }
+      @media (max-width: 768px) {
+        .side {
+          position: fixed;
+          z-index: 90;
+          top: 52px;
+          left: 0;
+          bottom: 0;
+          transform: translateX(-100%);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .side.mob {
+          transform: translateX(0);
+        }
+        .side.shut {
+          transform: translateX(-100%);
+        }
+        .mn {
+          padding: 20px 16px;
+        }
+        .hdr-logo span {
+          display: none;
+        }
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--bd);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--tx2);
+      }
+      @media print {
+        .hdr,
+        .side,
+        .toc,
+        .btt {
+          display: none !important;
+        }
+        .lay {
+          display: block;
+        }
+        .mn {
+          padding: 0;
+          overflow: visible;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <div class="hdr">
+      <button class="ibtn" id="togSide" title="Toggle sidebar">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+      <div class="hdr-logo">&#128214; <span>__PROJECT_NAME__ Docs</span></div>
+      <div class="sbox">
+        <span class="sico"
+          ><svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" /></svg
+        ></span>
+        <input
+          type="text"
+          id="sinput"
+          placeholder="搜索文档... (标题, 内容, 标签)"
+        />
+        <div class="sres" id="sresults"></div>
+      </div>
+      <div class="acts">
+        <span class="dcnt">__DOC_COUNT__ 篇文档</span>
+        <button class="ibtn" id="togTheme" title="Toggle theme">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Layout -->
+    <div class="lay">
+      <!-- Sidebar -->
+      <div class="side" id="sidebar"></div>
+
+      <!-- Main content -->
+      <div class="mn" id="main">
+        <div class="welc" id="welcome">
+          <div class="wico">&#128218;</div>
+          <h2>__PROJECT_NAME__ 技术文档</h2>
+          <p>
+            嵌入式微逆变器项目技术文档中心。<br />从左侧导航栏选择文档,
+            或使用搜索功能查找内容。
+          </p>
+          <div class="wsts">
+            <div>
+              <div class="sv" id="wDocCnt">__DOC_COUNT__</div>
+              <div class="sl">文档总数</div>
             </div>
-            <div class="sbox">
-                <span class="sico"
-                    ><svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <circle cx="11" cy="11" r="8" />
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" /></svg
-                ></span>
-                <input
-                    type="text"
-                    id="sinput"
-                    placeholder="搜索文档... (标题, 内容, 标签)"
-                />
-                <div class="sres" id="sresults"></div>
+            <div>
+              <div class="sv" id="wCatCnt">0</div>
+              <div class="sl">分类数</div>
             </div>
-            <div class="acts">
-                <span class="dcnt">__DOC_COUNT__ 篇文档</span>
-                <button class="ibtn" id="togTheme" title="Toggle theme">
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-                    </svg>
-                </button>
-            </div>
+          </div>
+          <p style="margin-top: 32px; font-size: 12px; color: var(--tx2)">
+            构建时间: __BUILD_TIME__
+          </p>
         </div>
+      </div>
 
-        <!-- Layout -->
-        <div class="lay">
-            <!-- Sidebar -->
-            <div class="side" id="sidebar"></div>
+      <!-- TOC sidebar -->
+      <div class="toc" id="tocbar">
+        <div class="toc-ti">目录</div>
+        <div id="toclist"></div>
+      </div>
+    </div>
 
-            <!-- Main content -->
-            <div class="mn" id="main">
-                <div class="welc" id="welcome">
-                    <div class="wico">&#128218;</div>
-                    <h2>__PROJECT_NAME__ 技术文档</h2>
-                    <p>
-                        嵌入式微逆变器项目技术文档中心。<br />从左侧导航栏选择文档,
-                        或使用搜索功能查找内容。
-                    </p>
-                    <div class="wsts">
-                        <div>
-                            <div class="sv" id="wDocCnt">__DOC_COUNT__</div>
-                            <div class="sl">文档总数</div>
-                        </div>
-                        <div>
-                            <div class="sv" id="wCatCnt">0</div>
-                            <div class="sl">分类数</div>
-                        </div>
-                    </div>
-                    <p
-                        style="
-                            margin-top: 32px;
-                            font-size: 12px;
-                            color: var(--tx2);
-                        "
-                    >
-                        构建时间: __BUILD_TIME__
-                    </p>
-                </div>
-            </div>
+    <!-- Back to top -->
+    <button class="btt" id="btt" title="回到顶部">&uarr;</button>
 
-            <!-- TOC sidebar -->
-            <div class="toc" id="tocbar">
-                <div class="toc-ti">目录</div>
-                <div id="toclist"></div>
-            </div>
-        </div>
+    <script>
+      // ============================================================
+      // Data injected by build_wiki.py
+      // ============================================================
+      const DOCS = /*__DOCS_DATA__*/;
+      const TREE = /*__TREE_DATA__*/;
 
-        <!-- Back to top -->
-        <button class="btt" id="btt" title="回到顶部">&uarr;</button>
+      // ============================================================
+      // State
+      // ============================================================
+      let currentDoc = null;
+      let theme = localStorage.getItem('pw_theme') || 'light';
 
-        <script>
-            // ============================================================
-            // Data injected by build_wiki.py
-            // ============================================================
-            const DOCS = /*__DOCS_DATA__*/;
-            const TREE = /*__TREE_DATA__*/;
+      // ============================================================
+      // Initialization
+      // ============================================================
+      (function init() {
+        applyTheme(theme);
+        renderSidebar();
+        setupSearch();
+        setupEvents();
 
-            // ============================================================
-            // State
-            // ============================================================
-            let currentDoc = null;
-            let theme = localStorage.getItem('pw_theme') || 'light';
+        // Set category count
+        const catCntEl = document.getElementById('wCatCnt');
+        if (catCntEl) catCntEl.textContent = Object.keys(TREE).length;
 
-            // ============================================================
-            // Initialization
-            // ============================================================
-            (function init() {
-              applyTheme(theme);
-              renderSidebar();
-              setupSearch();
-              setupEvents();
+        // Check hash for direct link
+        const hash = location.hash.slice(1);
+        if (hash) {
+          const doc = DOCS.find(d => d.path === decodeURIComponent(hash));
+          if (doc) openDoc(doc);
+        }
+      })();
 
-              // Set category count
-              const catCntEl = document.getElementById('wCatCnt');
-              if (catCntEl) catCntEl.textContent = Object.keys(TREE).length;
+      // ============================================================
+      // Theme
+      // ============================================================
+      function applyTheme(t) {
+        theme = t;
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('pw_theme', t);
+      }
 
-              // Check hash for direct link
-              const hash = location.hash.slice(1);
-              if (hash) {
-                const doc = DOCS.find(d => d.path === decodeURIComponent(hash));
-                if (doc) openDoc(doc);
-              }
-            })();
+      // ============================================================
+      // Sidebar rendering
+      // ============================================================
+      function renderSidebar() {
+        const sb = document.getElementById('sidebar');
+        let html = '';
+        const order = ['root','modules','api','design','hardware','changelog'];
+        const cats = Object.keys(TREE);
+        const sorted = order.filter(k => cats.includes(k)).concat(cats.filter(k => !order.includes(k)));
 
-            // ============================================================
-            // Theme
-            // ============================================================
-            function applyTheme(t) {
-              theme = t;
-              document.documentElement.setAttribute('data-theme', t);
-              localStorage.setItem('pw_theme', t);
+        function renderItems(items, level) {
+          let h = '';
+          for (const d of items) {
+            h += '<div class="sitm" data-path="' + esc(d.path) + '" style="padding-left:' + (12 + level * 12) + 'px">' +
+              '<span class="sdot ' + (d.status || 'draft') + '"></span>' +
+              '<span>' + esc(d.title) + '</span></div>';
+          }
+          return h;
+        }
+
+        function renderSubdirs(subdirs, level) {
+          let h = '';
+          for (const [subkey, subval] of Object.entries(subdirs)) {
+            const subId = 'sub_' + Math.random().toString(36).substr(2, 9);
+            const totalCount = countItemsInSubdir(subval);
+            h += '<div class="sfold" data-fold="' + subId + '" style="padding-left:' + (8 + level * 12) + 'px">' +
+              '<span class="arr">&#9660;</span>' + esc(subval.name) +
+              '<span class="cnt">' + totalCount + '</span></div>';
+            h += '<div class="sfold-items" id="' + subId + '">';
+            if (subval.items && subval.items.length) {
+              h += renderItems(subval.items, level + 1);
             }
-
-            // ============================================================
-            // Sidebar rendering
-            // ============================================================
-            function renderSidebar() {
-              const sb = document.getElementById('sidebar');
-              let html = '';
-              const order = ['root','modules','api','design','hardware','changelog'];
-              const cats = Object.keys(TREE);
-              const sorted = order.filter(k => cats.includes(k)).concat(cats.filter(k => !order.includes(k)));
-
-              for (const key of sorted) {
-                const cat = TREE[key];
-                if (!cat) continue;
-                html += '<div class="shdr" data-cat="' + key + '">' +
-                  '<span class="arr">&#9660;</span>' + esc(cat.name) +
-                  '<span class="cnt">' + cat.docs.length + '</span></div>';
-                html += '<div class="sitms" data-cat="' + key + '">';
-                for (const d of cat.docs) {
-                  html += '<div class="sitm" data-path="' + esc(d.path) + '">' +
-                    '<span class="sdot ' + (d.status || 'draft') + '"></span>' +
-                    '<span>' + esc(d.title) + '</span></div>';
-                }
-                html += '</div>';
-              }
-              sb.innerHTML = html;
-
-              // Section toggle
-              sb.querySelectorAll('.shdr').forEach(h => {
-                h.addEventListener('click', () => {
-                  const items = sb.querySelector('.sitms[data-cat="' + h.dataset.cat + '"]');
-                  const arrow = h.querySelector('.arr');
-                  if (items) items.classList.toggle('shut');
-                  if (arrow) arrow.classList.toggle('shut');
-                });
-              });
-
-              // Doc click
-              sb.querySelectorAll('.sitm').forEach(el => {
-                el.addEventListener('click', () => {
-                  const doc = DOCS.find(d => d.path === el.dataset.path);
-                  if (doc) openDoc(doc);
-                });
-              });
+            if (subval.subdirs && Object.keys(subval.subdirs).length) {
+              h += renderSubdirs(subval.subdirs, level + 1);
             }
+            h += '</div>';
+          }
+          return h;
+        }
 
-            // ============================================================
-            // Open document
-            // ============================================================
-            function openDoc(doc) {
-              currentDoc = doc;
-              location.hash = doc.path;
-
-              // Update sidebar active state
-              document.querySelectorAll('.sitm').forEach(el => {
-                el.classList.toggle('on', el.dataset.path === doc.path);
-              });
-
-              // Build header
-              const parts = doc.path.split('/');
-              let bc = '<a onclick="showWelcome()">&#127968; 首页</a>';
-              if (parts.length > 1) {
-                const catKey = parts[0];
-                const catName = TREE[catKey] ? TREE[catKey].name : catKey;
-                bc += ' <span>/</span> <span>' + esc(catName) + '</span>';
-              }
-              bc += ' <span>/</span> <span>' + esc(doc.title) + '</span>';
-
-              let meta = '';
-              if (doc.status) meta += '<span class="bdg ' + doc.status + '">' + doc.status + '</span>';
-              if (doc.author) meta += '<span>&#9998; ' + esc(doc.author) + '</span>';
-              if (doc.date) meta += '<span>&#128197; ' + esc(doc.date) + '</span>';
-              if (doc.modified) meta += '<span>&#128336; ' + esc(doc.modified) + '</span>';
-              if (doc.tags && doc.tags.length) {
-                meta += '<span>';
-                doc.tags.forEach(t => { meta += '<span class="tg">' + esc(t) + '</span>'; });
-                meta += '</span>';
-              }
-
-              // Render markdown
-              const bodyMd = extractBody(doc.content);
-              const rendered = renderMarkdown(bodyMd);
-
-              const main = document.getElementById('main');
-              main.innerHTML = '<div class="dhdr"><div class="dbc">' + bc + '</div><div class="dmt">' + meta + '</div></div>' +
-                '<div class="md">' + rendered + '</div>';
-              main.scrollTop = 0;
-
-              // Render TOC
-              renderTOC(doc.headings);
-
-              // Hide welcome
-              const w = document.getElementById('welcome');
-              if (w) w.style.display = 'none';
-
-              // Close search
-              closeSearch();
+        function countItemsInSubdir(node) {
+          let count = node.items ? node.items.length : 0;
+          if (node.subdirs) {
+            for (const sub of Object.values(node.subdirs)) {
+              count += countItemsInSubdir(sub);
             }
+          }
+          return count;
+        }
 
-            function showWelcome() {
-              currentDoc = null;
-              location.hash = '';
-              document.querySelectorAll('.sitm').forEach(el => el.classList.remove('on'));
-              const main = document.getElementById('main');
-              main.innerHTML = '<div class="welc" id="welcome">' +
-                '<div class="wico">&#128218;</div>' +
-                '<h2>__PROJECT_NAME__ 技术文档</h2>' +
-                '<p>嵌入式微逆变器项目技术文档中心。<br>从左侧导航栏选择文档, 或使用搜索功能查找内容。</p>' +
-                '<div class="wsts"><div><div class="sv">' + DOCS.length + '</div><div class="sl">文档总数</div></div>' +
-                '<div><div class="sv">' + Object.keys(TREE).length + '</div><div class="sl">分类数</div></div></div>' +
-                '<p style="margin-top:32px;font-size:12px;color:var(--tx2)">构建时间: __BUILD_TIME__</p></div>';
-              document.getElementById('toclist').innerHTML = '';
+        for (const key of sorted) {
+          const cat = TREE[key];
+          if (!cat) continue;
+          const totalCount = (cat.items ? cat.items.length : 0) + countItemsInSubdir({subdirs: cat.subdirs || {}});
+          html += '<div class="shdr" data-cat="' + key + '">' +
+            '<span class="arr">&#9660;</span>' + esc(cat.name) +
+            '<span class="cnt">' + totalCount + '</span></div>';
+          html += '<div class="sitms" data-cat="' + key + '">';
+          if (cat.items && cat.items.length) {
+            html += renderItems(cat.items, 0);
+          }
+          if (cat.subdirs && Object.keys(cat.subdirs).length) {
+            html += renderSubdirs(cat.subdirs, 0);
+          }
+          html += '</div>';
+        }
+        sb.innerHTML = html;
+
+        // Section toggle
+        sb.querySelectorAll('.shdr').forEach(h => {
+          h.addEventListener('click', () => {
+            const items = sb.querySelector('.sitms[data-cat="' + h.dataset.cat + '"]');
+            const arrow = h.querySelector('.arr');
+            if (items) items.classList.toggle('shut');
+            if (arrow) arrow.classList.toggle('shut');
+          });
+        });
+
+        // Folder toggle
+        sb.querySelectorAll('.sfold').forEach(h => {
+          h.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const foldId = h.dataset.fold;
+            const items = document.getElementById(foldId);
+            const arrow = h.querySelector('.arr');
+            if (items) items.classList.toggle('shut');
+            if (arrow) arrow.classList.toggle('shut');
+          });
+        });
+
+        // Doc click
+        sb.querySelectorAll('.sitm').forEach(el => {
+          el.addEventListener('click', () => {
+            const doc = DOCS.find(d => d.path === el.dataset.path);
+            if (doc) openDoc(doc);
+          });
+        });
+      }
+
+      // ============================================================
+      // Open document
+      // ============================================================
+      function openDoc(doc) {
+        currentDoc = doc;
+        location.hash = doc.path;
+
+        // Update sidebar active state
+        document.querySelectorAll('.sitm').forEach(el => {
+          el.classList.toggle('on', el.dataset.path === doc.path);
+        });
+
+        // Build header
+        const parts = doc.path.split('/');
+        let bc = '<a onclick="showWelcome()">&#127968; 首页</a>';
+        if (parts.length > 1) {
+          const catKey = parts[0];
+          const catName = TREE[catKey] ? TREE[catKey].name : catKey;
+          bc += ' <span>/</span> <span>' + esc(catName) + '</span>';
+        }
+        bc += ' <span>/</span> <span>' + esc(doc.title) + '</span>';
+
+        let meta = '';
+        if (doc.status) meta += '<span class="bdg ' + doc.status + '">' + doc.status + '</span>';
+        if (doc.author) meta += '<span>&#9998; ' + esc(doc.author) + '</span>';
+        if (doc.date) meta += '<span>&#128197; ' + esc(doc.date) + '</span>';
+        if (doc.modified) meta += '<span>&#128336; ' + esc(doc.modified) + '</span>';
+        if (doc.tags && doc.tags.length) {
+          meta += '<span>';
+          doc.tags.forEach(t => { meta += '<span class="tg">' + esc(t) + '</span>'; });
+          meta += '</span>';
+        }
+
+        // Render markdown
+        const bodyMd = extractBody(doc.content);
+        const rendered = renderMarkdown(bodyMd);
+
+        const main = document.getElementById('main');
+        main.innerHTML = '<div class="dhdr"><div class="dbc">' + bc + '</div><div class="dmt">' + meta + '</div></div>' +
+          '<div class="md">' + rendered + '</div>';
+        main.scrollTop = 0;
+
+        // Render TOC
+        renderTOC(doc.headings);
+
+        // Hide welcome
+        const w = document.getElementById('welcome');
+        if (w) w.style.display = 'none';
+
+        // Close search
+        closeSearch();
+      }
+
+      function showWelcome() {
+        currentDoc = null;
+        location.hash = '';
+        document.querySelectorAll('.sitm').forEach(el => el.classList.remove('on'));
+        const main = document.getElementById('main');
+        main.innerHTML = '<div class="welc" id="welcome">' +
+          '<div class="wico">&#128218;</div>' +
+          '<h2>__PROJECT_NAME__ 技术文档</h2>' +
+          '<p>嵌入式微逆变器项目技术文档中心。<br>从左侧导航栏选择文档, 或使用搜索功能查找内容。</p>' +
+          '<div class="wsts"><div><div class="sv">' + DOCS.length + '</div><div class="sl">文档总数</div></div>' +
+          '<div><div class="sv">' + Object.keys(TREE).length + '</div><div class="sl">分类数</div></div></div>' +
+          '<p style="margin-top:32px;font-size:12px;color:var(--tx2)">构建时间: __BUILD_TIME__</p></div>';
+        document.getElementById('toclist').innerHTML = '';
+      }
+
+      // ============================================================
+      // Extract markdown body (strip frontmatter)
+      // ============================================================
+      function extractBody(content) {
+        const m = content.match(/^---\s*\n[\s\S]*?\n---\s*\n([\s\S]*)$/);
+        return m ? m[1] : content;
+      }
+
+      // ============================================================
+      // Lightweight Markdown renderer
+      // ============================================================
+      function renderMarkdown(md) {
+        let html = '';
+        const lines = md.split('\n');
+        let i = 0;
+        let inCode = false, codeLang = '', codeLines = [];
+        let inList = false, listType = '', listItems = [];
+        let inBlockquote = false, bqLines = [];
+        let inTable = false, tableRows = [];
+        let paragraph = [];
+
+        function flushParagraph() {
+          if (paragraph.length > 0) {
+            html += '<p>' + inlineRender(paragraph.join('\n')) + '</p>';
+            paragraph = [];
+          }
+        }
+
+        function flushList() {
+          if (!inList) return;
+          const tag = listType === 'ol' ? 'ol' : 'ul';
+          html += '<' + tag + '>';
+          listItems.forEach(li => { html += '<li>' + inlineRender(li) + '</li>'; });
+          html += '</' + tag + '>';
+          inList = false;
+          listItems = [];
+        }
+
+        function flushBlockquote() {
+          if (!inBlockquote) return;
+          const content = bqLines.join('\n');
+          const isWarning = /\*\*WARNING\*\*|WARNING:/i.test(content);
+          html += '<blockquote class="' + (isWarning ? 'bqw' : '') + '">' +
+            renderMarkdown(content) + '</blockquote>';
+          inBlockquote = false;
+          bqLines = [];
+        }
+
+        function flushTable() {
+          if (!inTable) return;
+          if (tableRows.length < 2) { inTable = false; tableRows = []; return; }
+          html += '<div class="twrap"><table><thead><tr>';
+          const headers = parseTableRow(tableRows[0]);
+          headers.forEach(h => { html += '<th>' + inlineRender(h) + '</th>'; });
+          html += '</tr></thead><tbody>';
+          for (let r = 2; r < tableRows.length; r++) {
+            const cells = parseTableRow(tableRows[r]);
+            html += '<tr>';
+            cells.forEach(c => { html += '<td>' + inlineRender(c) + '</td>'; });
+            html += '</tr>';
+          }
+          html += '</tbody></table></div>';
+          inTable = false;
+          tableRows = [];
+        }
+
+        function parseTableRow(row) {
+          return row.replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
+        }
+
+        while (i < lines.length) {
+          const line = lines[i];
+          const trimmed = line.trim();
+
+          // Code block
+          if (trimmed.startsWith('```')) {
+            if (!inCode) {
+              flushParagraph(); flushList(); flushBlockquote(); flushTable();
+              inCode = true;
+              codeLang = trimmed.slice(3).trim();
+              codeLines = [];
+              i++; continue;
+            } else {
+              const langLabel = codeLang ? '<span class="plbl">' + esc(codeLang) + '</span>' : '';
+              html += '<pre>' + langLabel + '<code>' + escCode(codeLines.join('\n')) + '</code></pre>';
+              inCode = false;
+              codeLang = '';
+              codeLines = [];
+              i++; continue;
             }
+          }
+          if (inCode) { codeLines.push(line); i++; continue; }
 
-            // ============================================================
-            // Extract markdown body (strip frontmatter)
-            // ============================================================
-            function extractBody(content) {
-              const m = content.match(/^---\s*\n[\s\S]*?\n---\s*\n([\s\S]*)$/);
-              return m ? m[1] : content;
+          // Empty line
+          if (trimmed === '') {
+            flushParagraph();
+            if (!inList && !inBlockquote && !inTable) { i++; continue; }
+            if (inList) { flushList(); }
+            if (inBlockquote) { flushBlockquote(); }
+            if (inTable) { flushTable(); }
+            i++; continue;
+          }
+
+          // Heading
+          const hMatch = trimmed.match(/^(#{1,6})\s+(.+)$/);
+          if (hMatch) {
+            flushParagraph(); flushList(); flushBlockquote(); flushTable();
+            const lvl = hMatch[1].length;
+            const text = hMatch[2];
+            const anchor = text.replace(/[^\w\u4e00-\u9fff\s-]/g, '').replace(/\s+/g, '-').toLowerCase();
+            html += '<h' + lvl + ' id="' + esc(anchor) + '">' + inlineRender(text) + '</h' + lvl + '>';
+            i++; continue;
+          }
+
+          // HR
+          if (/^(-{3,}|_{3,}|\*{3,})$/.test(trimmed)) {
+            flushParagraph(); flushList(); flushBlockquote(); flushTable();
+            html += '<hr>';
+            i++; continue;
+          }
+
+          // Blockquote
+          if (trimmed.startsWith('>')) {
+            flushParagraph(); flushList(); flushTable();
+            inBlockquote = true;
+            bqLines.push(trimmed.replace(/^>\s?/, ''));
+            i++; continue;
+          }
+          if (inBlockquote && !trimmed.startsWith('>')) {
+            flushBlockquote();
+          }
+
+          // Table
+          if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+            if (!inTable) {
+              flushParagraph(); flushList(); flushBlockquote();
+              inTable = true;
+              tableRows = [];
             }
+            tableRows.push(trimmed);
+            i++; continue;
+          }
+          if (inTable) { flushTable(); }
 
-            // ============================================================
-            // Lightweight Markdown renderer
-            // ============================================================
-            function renderMarkdown(md) {
-              let html = '';
-              const lines = md.split('\n');
-              let i = 0;
-              let inCode = false, codeLang = '', codeLines = [];
-              let inList = false, listType = '', listItems = [];
-              let inBlockquote = false, bqLines = [];
-              let inTable = false, tableRows = [];
-              let paragraph = [];
+          // Unordered list
+          const ulMatch = trimmed.match(/^[-*+]\s+(.+)$/);
+          if (ulMatch) {
+            flushParagraph(); flushBlockquote(); flushTable();
+            if (!inList || listType !== 'ul') { flushList(); inList = true; listType = 'ul'; }
+            listItems.push(ulMatch[1]);
+            i++; continue;
+          }
 
-              function flushParagraph() {
-                if (paragraph.length > 0) {
-                  html += '<p>' + inlineRender(paragraph.join('\n')) + '</p>';
-                  paragraph = [];
-                }
+          // Ordered list
+          const olMatch = trimmed.match(/^\d+\.\s+(.+)$/);
+          if (olMatch) {
+            flushParagraph(); flushBlockquote(); flushTable();
+            if (!inList || listType !== 'ol') { flushList(); inList = true; listType = 'ol'; }
+            listItems.push(olMatch[1]);
+            i++; continue;
+          }
+
+          // Otherwise: paragraph text
+          if (inList) { flushList(); }
+          paragraph.push(trimmed);
+          i++;
+        }
+
+        // Flush remaining
+        if (inCode) {
+          const langLabel = codeLang ? '<span class="plbl">' + esc(codeLang) + '</span>' : '';
+          html += '<pre>' + langLabel + '<code>' + escCode(codeLines.join('\n')) + '</code></pre>';
+        }
+        flushParagraph();
+        flushList();
+        flushBlockquote();
+        flushTable();
+
+        return html;
+      }
+
+      function inlineRender(text) {
+        // Images
+        text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+        // Links
+        text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+        // Bold+italic
+        text = text.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+        // Bold
+        text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        text = text.replace(/__(.+?)__/g, '<strong>$1</strong>');
+        // Italic
+        text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+        text = text.replace(/_(.+?)_/g, '<em>$1</em>');
+        // Strikethrough
+        text = text.replace(/~~(.+?)~~/g, '<del>$1</del>');
+        // Inline code
+        text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+        // Line break
+        text = text.replace(/  $/gm, '<br>');
+        return text;
+      }
+
+      // ============================================================
+      // TOC rendering
+      // ============================================================
+      function renderTOC(headings) {
+        const list = document.getElementById('toclist');
+        if (!headings || !headings.length) { list.innerHTML = ''; return; }
+        let html = '';
+        for (const h of headings) {
+          html += '<a class="toc-i" data-l="' + h.level + '" onclick="scrollToAnchor(\'' +
+            esc(h.anchor) + '\')">' + esc(h.text) + '</a>';
+        }
+        list.innerHTML = html;
+      }
+
+      function scrollToAnchor(id) {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+
+      // ============================================================
+      // Search
+      // ============================================================
+      function setupSearch() {
+        const input = document.getElementById('sinput');
+        const results = document.getElementById('sresults');
+        let timer = null;
+
+        input.addEventListener('input', () => {
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            const q = input.value.trim().toLowerCase();
+            if (q.length < 2) { closeSearch(); return; }
+            const matches = [];
+            for (const doc of DOCS) {
+              let score = 0;
+              let snippet = '';
+              const titleLower = doc.title.toLowerCase();
+              const bodyLower = (doc.content || '').toLowerCase();
+              const tagsLower = (doc.tags || []).join(' ').toLowerCase();
+
+              if (titleLower.includes(q)) { score += 10; snippet = doc.title; }
+              if (tagsLower.includes(q)) { score += 5; }
+
+              const idx = bodyLower.indexOf(q);
+              if (idx >= 0) {
+                score += 3;
+                const start = Math.max(0, idx - 40);
+                const end = Math.min(bodyLower.length, idx + q.length + 60);
+                snippet = '...' + doc.content.substring(start, end).replace(/\n/g, ' ') + '...';
               }
 
-              function flushList() {
-                if (!inList) return;
-                const tag = listType === 'ol' ? 'ol' : 'ul';
-                html += '<' + tag + '>';
-                listItems.forEach(li => { html += '<li>' + inlineRender(li) + '</li>'; });
-                html += '</' + tag + '>';
-                inList = false;
-                listItems = [];
-              }
-
-              function flushBlockquote() {
-                if (!inBlockquote) return;
-                const content = bqLines.join('\n');
-                const isWarning = /\*\*WARNING\*\*|WARNING:/i.test(content);
-                html += '<blockquote class="' + (isWarning ? 'bqw' : '') + '">' +
-                  renderMarkdown(content) + '</blockquote>';
-                inBlockquote = false;
-                bqLines = [];
-              }
-
-              function flushTable() {
-                if (!inTable) return;
-                if (tableRows.length < 2) { inTable = false; tableRows = []; return; }
-                html += '<div class="twrap"><table><thead><tr>';
-                const headers = parseTableRow(tableRows[0]);
-                headers.forEach(h => { html += '<th>' + inlineRender(h) + '</th>'; });
-                html += '</tr></thead><tbody>';
-                for (let r = 2; r < tableRows.length; r++) {
-                  const cells = parseTableRow(tableRows[r]);
-                  html += '<tr>';
-                  cells.forEach(c => { html += '<td>' + inlineRender(c) + '</td>'; });
-                  html += '</tr>';
-                }
-                html += '</tbody></table></div>';
-                inTable = false;
-                tableRows = [];
-              }
-
-              function parseTableRow(row) {
-                return row.replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
-              }
-
-              while (i < lines.length) {
-                const line = lines[i];
-                const trimmed = line.trim();
-
-                // Code block
-                if (trimmed.startsWith('```')) {
-                  if (!inCode) {
-                    flushParagraph(); flushList(); flushBlockquote(); flushTable();
-                    inCode = true;
-                    codeLang = trimmed.slice(3).trim();
-                    codeLines = [];
-                    i++; continue;
-                  } else {
-                    const langLabel = codeLang ? '<span class="plbl">' + esc(codeLang) + '</span>' : '';
-                    html += '<pre>' + langLabel + '<code>' + escCode(codeLines.join('\n')) + '</code></pre>';
-                    inCode = false;
-                    codeLang = '';
-                    codeLines = [];
-                    i++; continue;
-                  }
-                }
-                if (inCode) { codeLines.push(line); i++; continue; }
-
-                // Empty line
-                if (trimmed === '') {
-                  flushParagraph();
-                  if (!inList && !inBlockquote && !inTable) { i++; continue; }
-                  if (inList) { flushList(); }
-                  if (inBlockquote) { flushBlockquote(); }
-                  if (inTable) { flushTable(); }
-                  i++; continue;
-                }
-
-                // Heading
-                const hMatch = trimmed.match(/^(#{1,6})\s+(.+)$/);
-                if (hMatch) {
-                  flushParagraph(); flushList(); flushBlockquote(); flushTable();
-                  const lvl = hMatch[1].length;
-                  const text = hMatch[2];
-                  const anchor = text.replace(/[^\w\u4e00-\u9fff\s-]/g, '').replace(/\s+/g, '-').toLowerCase();
-                  html += '<h' + lvl + ' id="' + esc(anchor) + '">' + inlineRender(text) + '</h' + lvl + '>';
-                  i++; continue;
-                }
-
-                // HR
-                if (/^(-{3,}|_{3,}|\*{3,})$/.test(trimmed)) {
-                  flushParagraph(); flushList(); flushBlockquote(); flushTable();
-                  html += '<hr>';
-                  i++; continue;
-                }
-
-                // Blockquote
-                if (trimmed.startsWith('>')) {
-                  flushParagraph(); flushList(); flushTable();
-                  inBlockquote = true;
-                  bqLines.push(trimmed.replace(/^>\s?/, ''));
-                  i++; continue;
-                }
-                if (inBlockquote && !trimmed.startsWith('>')) {
-                  flushBlockquote();
-                }
-
-                // Table
-                if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
-                  if (!inTable) {
-                    flushParagraph(); flushList(); flushBlockquote();
-                    inTable = true;
-                    tableRows = [];
-                  }
-                  tableRows.push(trimmed);
-                  i++; continue;
-                }
-                if (inTable) { flushTable(); }
-
-                // Unordered list
-                const ulMatch = trimmed.match(/^[-*+]\s+(.+)$/);
-                if (ulMatch) {
-                  flushParagraph(); flushBlockquote(); flushTable();
-                  if (!inList || listType !== 'ul') { flushList(); inList = true; listType = 'ul'; }
-                  listItems.push(ulMatch[1]);
-                  i++; continue;
-                }
-
-                // Ordered list
-                const olMatch = trimmed.match(/^\d+\.\s+(.+)$/);
-                if (olMatch) {
-                  flushParagraph(); flushBlockquote(); flushTable();
-                  if (!inList || listType !== 'ol') { flushList(); inList = true; listType = 'ol'; }
-                  listItems.push(olMatch[1]);
-                  i++; continue;
-                }
-
-                // Otherwise: paragraph text
-                if (inList) { flushList(); }
-                paragraph.push(trimmed);
-                i++;
-              }
-
-              // Flush remaining
-              if (inCode) {
-                const langLabel = codeLang ? '<span class="plbl">' + esc(codeLang) + '</span>' : '';
-                html += '<pre>' + langLabel + '<code>' + escCode(codeLines.join('\n')) + '</code></pre>';
-              }
-              flushParagraph();
-              flushList();
-              flushBlockquote();
-              flushTable();
-
-              return html;
-            }
-
-            function inlineRender(text) {
-              // Images
-              text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
-              // Links
-              text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-              // Bold+italic
-              text = text.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
-              // Bold
-              text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-              text = text.replace(/__(.+?)__/g, '<strong>$1</strong>');
-              // Italic
-              text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
-              text = text.replace(/_(.+?)_/g, '<em>$1</em>');
-              // Strikethrough
-              text = text.replace(/~~(.+?)~~/g, '<del>$1</del>');
-              // Inline code
-              text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-              // Line break
-              text = text.replace(/  $/gm, '<br>');
-              return text;
-            }
-
-            // ============================================================
-            // TOC rendering
-            // ============================================================
-            function renderTOC(headings) {
-              const list = document.getElementById('toclist');
-              if (!headings || !headings.length) { list.innerHTML = ''; return; }
-              let html = '';
-              for (const h of headings) {
-                html += '<a class="toc-i" data-l="' + h.level + '" onclick="scrollToAnchor(\'' +
-                  esc(h.anchor) + '\')">' + esc(h.text) + '</a>';
-              }
-              list.innerHTML = html;
-            }
-
-            function scrollToAnchor(id) {
-              const el = document.getElementById(id);
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              if (score > 0) {
+                matches.push({ doc, score, snippet });
               }
             }
+            matches.sort((a, b) => b.score - a.score);
+            showSearchResults(matches.slice(0, 15), q);
+          }, 200);
+        });
 
-            // ============================================================
-            // Search
-            // ============================================================
-            function setupSearch() {
-              const input = document.getElementById('sinput');
-              const results = document.getElementById('sresults');
-              let timer = null;
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') { closeSearch(); input.blur(); }
+        });
 
-              input.addEventListener('input', () => {
-                clearTimeout(timer);
-                timer = setTimeout(() => {
-                  const q = input.value.trim().toLowerCase();
-                  if (q.length < 2) { closeSearch(); return; }
-                  const matches = [];
-                  for (const doc of DOCS) {
-                    let score = 0;
-                    let snippet = '';
-                    const titleLower = doc.title.toLowerCase();
-                    const bodyLower = (doc.content || '').toLowerCase();
-                    const tagsLower = (doc.tags || []).join(' ').toLowerCase();
+        document.addEventListener('click', (e) => {
+          if (!e.target.closest('.sbox')) closeSearch();
+        });
+      }
 
-                    if (titleLower.includes(q)) { score += 10; snippet = doc.title; }
-                    if (tagsLower.includes(q)) { score += 5; }
+      function showSearchResults(matches, query) {
+        const results = document.getElementById('sresults');
+        if (!matches.length) {
+          results.innerHTML = '<div style="padding:20px;text-align:center;color:var(--tx2)">未找到相关文档</div>';
+          results.classList.add('on');
+          return;
+        }
+        let html = '';
+        for (const m of matches) {
+          let snip = m.snippet;
+          if (snip && query) {
+            const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            snip = esc(snip).replace(re, '<mark>$1</mark>');
+          }
+          html += '<div class="sri" data-path="' + esc(m.doc.path) + '">' +
+            '<div class="sri-t">' + esc(m.doc.title) + '</div>' +
+            '<div class="sri-p">' + esc(m.doc.path) + '</div>' +
+            (snip ? '<div class="sri-s">' + snip + '</div>' : '') +
+            '</div>';
+        }
+        results.innerHTML = html;
+        results.classList.add('on');
 
-                    const idx = bodyLower.indexOf(q);
-                    if (idx >= 0) {
-                      score += 3;
-                      const start = Math.max(0, idx - 40);
-                      const end = Math.min(bodyLower.length, idx + q.length + 60);
-                      snippet = '...' + doc.content.substring(start, end).replace(/\n/g, ' ') + '...';
-                    }
+        results.querySelectorAll('.sri').forEach(el => {
+          el.addEventListener('click', () => {
+            const doc = DOCS.find(d => d.path === el.dataset.path);
+            if (doc) openDoc(doc);
+          });
+        });
+      }
 
-                    if (score > 0) {
-                      matches.push({ doc, score, snippet });
-                    }
-                  }
-                  matches.sort((a, b) => b.score - a.score);
-                  showSearchResults(matches.slice(0, 15), q);
-                }, 200);
-              });
+      function closeSearch() {
+        document.getElementById('sresults').classList.remove('on');
+      }
 
-              input.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') { closeSearch(); input.blur(); }
-              });
+      // ============================================================
+      // Events
+      // ============================================================
+      function setupEvents() {
+        // Sidebar toggle
+        document.getElementById('togSide').addEventListener('click', () => {
+          document.getElementById('sidebar').classList.toggle('shut');
+        });
 
-              document.addEventListener('click', (e) => {
-                if (!e.target.closest('.sbox')) closeSearch();
-              });
-            }
+        // Theme toggle
+        document.getElementById('togTheme').addEventListener('click', () => {
+          applyTheme(theme === 'dark' ? 'light' : 'dark');
+        });
 
-            function showSearchResults(matches, query) {
-              const results = document.getElementById('sresults');
-              if (!matches.length) {
-                results.innerHTML = '<div style="padding:20px;text-align:center;color:var(--tx2)">未找到相关文档</div>';
-                results.classList.add('on');
-                return;
-              }
-              let html = '';
-              for (const m of matches) {
-                let snip = m.snippet;
-                if (snip && query) {
-                  const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
-                  snip = esc(snip).replace(re, '<mark>$1</mark>');
-                }
-                html += '<div class="sri" data-path="' + esc(m.doc.path) + '">' +
-                  '<div class="sri-t">' + esc(m.doc.title) + '</div>' +
-                  '<div class="sri-p">' + esc(m.doc.path) + '</div>' +
-                  (snip ? '<div class="sri-s">' + snip + '</div>' : '') +
-                  '</div>';
-              }
-              results.innerHTML = html;
-              results.classList.add('on');
+        // Back to top
+        const mn = document.querySelector('.mn');
+        const btt = document.getElementById('btt');
+        if (mn && btt) {
+          mn.addEventListener('scroll', () => {
+            btt.classList.toggle('vis', mn.scrollTop > 300);
+          });
+          btt.addEventListener('click', () => {
+            mn.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+        }
 
-              results.querySelectorAll('.sri').forEach(el => {
-                el.addEventListener('click', () => {
-                  const doc = DOCS.find(d => d.path === el.dataset.path);
-                  if (doc) openDoc(doc);
-                });
-              });
-            }
+        // Keyboard shortcut: Ctrl+K or / to focus search
+        document.addEventListener('keydown', (e) => {
+          if ((e.ctrlKey && e.key === 'k') || (e.key === '/' && !e.target.closest('input,textarea'))) {
+            e.preventDefault();
+            document.getElementById('sinput').focus();
+          }
+        });
+      }
 
-            function closeSearch() {
-              document.getElementById('sresults').classList.remove('on');
-            }
+      // ============================================================
+      // Utilities
+      // ============================================================
+      function esc(s) {
+        if (!s) return '';
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+      }
 
-            // ============================================================
-            // Events
-            // ============================================================
-            function setupEvents() {
-              // Sidebar toggle
-              document.getElementById('togSide').addEventListener('click', () => {
-                document.getElementById('sidebar').classList.toggle('shut');
-              });
-
-              // Theme toggle
-              document.getElementById('togTheme').addEventListener('click', () => {
-                applyTheme(theme === 'dark' ? 'light' : 'dark');
-              });
-
-              // Back to top
-              const mn = document.querySelector('.mn');
-              const btt = document.getElementById('btt');
-              if (mn && btt) {
-                mn.addEventListener('scroll', () => {
-                  btt.classList.toggle('vis', mn.scrollTop > 300);
-                });
-                btt.addEventListener('click', () => {
-                  mn.scrollTo({ top: 0, behavior: 'smooth' });
-                });
-              }
-
-              // Keyboard shortcut: Ctrl+K or / to focus search
-              document.addEventListener('keydown', (e) => {
-                if ((e.ctrlKey && e.key === 'k') || (e.key === '/' && !e.target.closest('input,textarea'))) {
-                  e.preventDefault();
-                  document.getElementById('sinput').focus();
-                }
-              });
-            }
-
-            // ============================================================
-            // Utilities
-            // ============================================================
-            function esc(s) {
-              if (!s) return '';
-              const d = document.createElement('div');
-              d.textContent = s;
-              return d.innerHTML;
-            }
-
-            function escCode(s) {
-              return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            }
-        </script>
-    </body>
+      function escCode(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+    </script>
+  </body>
 </html>

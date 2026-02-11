@@ -95,6 +95,7 @@ def scan_sources(root_dir):
         "node_modules",
         "venv",
         "__pycache__",
+        "Firmware",
     }
 
     print(f"[INFO] Scanning sources in {root_dir}...")

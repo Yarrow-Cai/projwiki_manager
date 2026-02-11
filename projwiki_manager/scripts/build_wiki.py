@@ -100,8 +100,8 @@ def scan_wiki(wiki_dir):
     for md_file in sorted(wp.rglob("*.md")):
         rel = str(md_file.relative_to(wp)).replace("\\", "/")
 
-        # 跳过_site目录下的文件
-        if rel.startswith("_site/"):
+        # 跳过_site目录和.ai_tasks目录下的文件
+        if rel.startswith("_site/") or rel.startswith(".ai_tasks/"):
             continue
 
         try:
@@ -146,11 +146,19 @@ def scan_wiki(wiki_dir):
     return docs
 
 
+def count_items_recursive(node):
+    """递归计算子目录中的文档总数"""
+    total = len(node.get("items", []))
+    for sub in node.get("subdirs", {}).values():
+        total += count_items_recursive(sub)
+    return total
+
+
 def build_tree(docs):
-    """构建文档分类树结构
+    """构建文档分类树结构，支持子文件夹
 
     @param   docs: scan_wiki返回的文档列表
-    @retval  分类树字典 {category: {name, docs: [...]}}
+    @retval  分类树字典 {category: {name, items: [...], subdirs: {...}}}
     """
     category_names = {
         "root": "项目总览",
@@ -161,24 +169,60 @@ def build_tree(docs):
         "changelog": "变更日志",
     }
 
+    # 首先按分类分组
     tree = {}
     for d in docs:
         c = d["category"]
         if c not in tree:
-            tree[c] = {"name": category_names.get(c, c.title()), "docs": []}
-        tree[c]["docs"].append(
-            {
-                "path": d["path"],
-                "title": d["title"],
-                "status": d["status"],
-                "date": d["date"],
+            tree[c] = {
+                "name": category_names.get(c, c.title()),
+                "items": [],
+                "subdirs": {},
             }
-        )
+
+        path_parts = d["path"].split("/")
+
+        # 如果路径有子目录（如 modules/middleware/ethercat/xxx.md）
+        if len(path_parts) > 2:
+            # 构建子目录路径（如 middleware/ethercat）
+            subdir_path = "/".join(path_parts[1:-1])  # 去掉分类名和文件名
+            subdir_parts = subdir_path.split("/")
+
+            # 递归创建子目录结构
+            current = tree[c]
+            for part in subdir_parts:
+                if part not in current["subdirs"]:
+                    current["subdirs"][part] = {
+                        "name": part,
+                        "items": [],
+                        "subdirs": {},
+                    }
+                current = current["subdirs"][part]
+
+            # 将文档添加到最深层子目录
+            current["items"].append(
+                {
+                    "path": d["path"],
+                    "title": d["title"],
+                    "status": d["status"],
+                    "date": d["date"],
+                }
+            )
+        else:
+            # 直接放在分类下
+            tree[c]["items"].append(
+                {
+                    "path": d["path"],
+                    "title": d["title"],
+                    "status": d["status"],
+                    "date": d["date"],
+                }
+            )
 
     return tree
 
 
-def generate_html(docs, tree, project_name="YTC2400W"):
+def generate_html(docs, tree, project_name):
     """加载HTML模板并注入文档数据生成完整HTML
 
     @param   docs: 文档列表
@@ -257,14 +301,22 @@ def main():
 
     # 构建分类树
     tree = build_tree(docs)
-    cat_names = [f"{k}({len(v['docs'])})" for k, v in tree.items()]
+    cat_names = []
+    for k, v in tree.items():
+        total = len(v["items"])
+        for sub in v.get("subdirs", {}).values():
+            total += count_items_recursive(sub)
+        cat_names.append(f"{k}({total})")
     print(f"[INFO] Categories: {', '.join(cat_names) if cat_names else '(none)'}")
 
-    # 生成HTML
-    html = generate_html(docs, tree)
+    # 使用项目根目录名称作为项目名称
+    project_name = root.name or "index"
 
-    # 写入输出文件
-    out_path = site_dir / "index.html"
+    # 生成HTML
+    html = generate_html(docs, tree, project_name)
+
+    # 写入输出文件 - 使用项目根目录名称作为HTML文件名
+    out_path = site_dir / f"{project_name}.html"
     out_path.write_text(html, encoding="utf-8")
 
     file_size_kb = out_path.stat().st_size / 1024
